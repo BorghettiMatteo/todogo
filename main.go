@@ -1,19 +1,79 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	"time"
 
-	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
 )
 
-func main() {
-	fmt.Println("dioporco perchè  non riesco a committare?")
-	r := gin.Default()
+type Tabler interface {
+	TableName() string
+}
 
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-	r.Run() // listen and serve on 0.0.0.0:8080
+/*
+	func setupRouter() *gin.Engine {
+		router := gin.Default()
+		// grouping per rendere tutto più efficace
+		v1 := router.Group("/api/v1")
+		{
+			// GET per prendere tutti i task di un dato owner
+			v1.GET("/task/:owner", apiHandlers.GetOwnersTasks)
+		}
+		return router
+	}
+*/
+
+func main() {
+	//r := setupRouter()
+	// creare il db
+
+	connStr := "user=matteo dbname=ToDo password=password host=172.28.120.162 sslmode=disable"
+	db, err := sql.Open("postgres", connStr)
+
+	if err != nil {
+		// il server si è schienato, ritorna
+		fmt.Println("diomerda")
+		return
+	}
+	// così mi ricordo di chiudere il db
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		fmt.Println("merdacagata")
+		panic(err)
+	}
+
+	statement := `INSERT INTO todo (activity, activityowner, expiration) VALUES ($1, $2,$3)`
+	// usare 2006-01-02 come magical date
+	expiration, err := time.Parse("2006-01-02", "2023-05-27")
+	if err != nil {
+		fmt.Println("strasuperdiomerda")
+	}
+	//creation, _ := time.Parse("YY-MM-DD", "2023-05-25")
+	ret, err := db.Exec(statement, "matteo", "matteo", expiration)
+	if err != nil {
+		fmt.Println("diostramerda")
+		fmt.Printf("err: %v\n", err)
+	}
+	fmt.Printf("ret: %v\n", ret)
+	/*
+
+
+		var sampletodo todo.ToDo
+		//creation, _ := time.Parse("YY-MM-DD", "2023-05-25")
+		expiration, _ := time.Parse("YY-MM-DD", "2023-05-25")
+		sampleRow := sampletodo.CreateToDo("impiccarsi", "matteo", expiration, false)
+		fmt.Printf("sampleRow: %v\n", sampleRow)
+		postdb.AutoMigrate(&todo.ToDo{})
+
+		postdb.Select("activity", "activityowner", "expiration", "isdone").Create(&sampleRow)
+
+		//fmt.Printf("result: %v\n", result.Error)
+
+		//ora postgredb contiene il database effettivo con lo schema caricato
+		//r.Run() // listen and serve on 0.0.0.0:8080
+	*/
 }
