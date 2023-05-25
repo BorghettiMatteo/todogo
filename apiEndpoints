@@ -1,8 +1,8 @@
 GET
-        1) /v1/tasks/:owner -> prende tutte le tasks per un dato owner
+        1)/api/v1/tasks/:owner -> prende tutte le tasks per un dato owner
 POST 
-        1) /v1/task/ -> crea una task 
+        1) /api/v1/task/ -> crea una task 
 PUT
-        1) /v1/task/:id -> aggiorna Il campo isDone del task con dato ID 
+        1) /api/v1/task/:id -> aggiorna Il campo isDone del task con dato ID 
 DELETE
-        1) /v1/task/:id -> elimina la task con il dato ID
+        1) /api/v1/task/:id -> elimina la task con il dato ID
