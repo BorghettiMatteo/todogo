@@ -1,6 +1,5 @@
 GET
         1) /v1/tasks/:owner -> prende tutte le tasks per un dato owner
-        2) /v1/task/:id -> prende le task per un dato id
 POST 
         1) /v1/task/ -> crea una task 
 PUT
