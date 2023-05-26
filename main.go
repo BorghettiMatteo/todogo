@@ -1,11 +1,12 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
+	"main/todo"
 	"time"
 
-	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 type Tabler interface {
@@ -26,7 +27,56 @@ type Tabler interface {
 */
 
 func main() {
-	//r := setupRouter()
+
+	connStr := "user=matteo dbname=ToDo password=password host=172.28.120.162 port=5432 sslmode=disable"
+	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
+	expiration, err := time.Parse("2006-01-02", "2023-05-27")
+
+	samplequery := todo.ToDo{
+		Activity:      "falcidiare bambini 2",
+		ActivityOwner: "matteo",
+		Expiration:    expiration,
+	}
+
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+	}
+
+	db.Debug().AutoMigrate(&todo.ToDo{})
+
+	superdb, err := db.DB()
+
+	if err != nil {
+		fmt.Println("diomerda sta andado tutto a fuoco")
+	}
+	err = superdb.Ping()
+	if err != nil {
+		fmt.Printf("\"superdiomerda\": %v\n", "superdiomerda")
+		return
+	}
+
+	//data handling
+
+	if err != nil {
+		fmt.Println("strasuperdiomerda")
+	}
+
+	db.Debug().Table(samplequery.TableName()).Create(&samplequery)
+	//db.Last(&samplequery)
+
+}
+
+/*
+
+import (
+	"database/sql"
+	"fmt"
+	"time"
+
+	_ "github.com/lib/pq"
+)
+
+//r := setupRouter()
 	// creare il db
 
 	connStr := "user=matteo dbname=ToDo password=password host=172.28.120.162 sslmode=disable"
@@ -75,5 +125,4 @@ func main() {
 
 		//ora postgredb contiene il database effettivo con lo schema caricato
 		//r.Run() // listen and serve on 0.0.0.0:8080
-	*/
-}
+*/
