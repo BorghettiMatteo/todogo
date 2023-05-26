@@ -8,6 +8,10 @@ scelgo di mettere dentro gli API handler anche la logica di manipolazione del DB
 Ossia glipasso uno *Gorm.DB che è la conessione che faccio partire quando lancio il server Gin.
 
 
+res := db.Model(&samplequery).Update("activity", "tiratore pazzo") -> questo è il modo migliore per fare query su update.
+Ossia passare una struct di tipo todo che contiene il paramentro con cui effettuare la ricerca
+per capire se effettivamente ha fatto una modifica devo vedere se l errore è nil e poi se il res.rowseffected ha numero > 1. se così fosse vuol dire che solo 1 record è stato modificato 
+
 
 /*
 
