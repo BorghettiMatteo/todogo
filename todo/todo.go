@@ -22,8 +22,3 @@ func (*ToDo) CreateToDo(activity string, activityowner string, expiration time.T
 	todo.Expiration = expiration
 	return todo
 }
-
-func (t *ToDo) TableName() string {
-	// custom table name, this is default
-	return "public.todo"
-}
