@@ -2,3 +2,66 @@
 1) https://gocondor.github.io/docs/gin-context/
 2) dare un setuprouter() per setuppare il router con la definizione di tutti gli endpoint
 3) inizio a fare una versione con le query simil sql:
+
+
+
+/*
+
+import (
+	"database/sql"
+	"fmt"
+	"time"
+
+	_ "github.com/lib/pq"
+)
+
+//r := setupRouter()
+	// creare il db
+
+	connStr := "user=matteo dbname=ToDo password=password host=172.28.120.162 sslmode=disable"
+	db, err := sql.Open("postgres", connStr)
+
+	if err != nil {
+		// il server si è schienato, ritorna
+		fmt.Println("diomerda")
+		return
+	}
+	// così mi ricordo di chiudere il db
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		fmt.Println("merdacagata")
+		panic(err)
+	}
+
+	statement := `INSERT INTO todo (activity, activityowner, expiration) VALUES ($1, $2,$3)`
+	// usare 2006-01-02 come magical date
+	expiration, err := time.Parse("2006-01-02", "2023-05-27")
+	if err != nil {
+		fmt.Println("strasuperdiomerda")
+	}
+	//creation, _ := time.Parse("YY-MM-DD", "2023-05-25")
+	ret, err := db.Exec(statement, "matteo", "matteo", expiration)
+	if err != nil {
+		fmt.Println("diostramerda")
+		fmt.Printf("err: %v\n", err)
+	}
+	fmt.Printf("ret: %v\n", ret)
+	/*
+
+
+		var sampletodo todo.ToDo
+		//creation, _ := time.Parse("YY-MM-DD", "2023-05-25")
+		expiration, _ := time.Parse("YY-MM-DD", "2023-05-25")
+		sampleRow := sampletodo.CreateToDo("impiccarsi", "matteo", expiration, false)
+		fmt.Printf("sampleRow: %v\n", sampleRow)
+		postdb.AutoMigrate(&todo.ToDo{})
+
+		postdb.Select("activity", "activityowner", "expiration", "isdone").Create(&sampleRow)
+
+		//fmt.Printf("result: %v\n", result.Error)
+
+		//ora postgredb contiene il database effettivo con lo schema caricato
+		//r.Run() // listen and serve on 0.0.0.0:8080
+*/
