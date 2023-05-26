@@ -34,7 +34,7 @@ func main() {
 	expiration, err := time.Parse("2006-01-02", "2023-05-27")
 
 	samplequery := todo.ToDo{
-		Activity:      "falcidiare bambini 5",
+		Activity:      "falcidiare bambini 13",
 		ActivityOwner: "matteo",
 		Expiration:    expiration,
 	}
@@ -62,7 +62,7 @@ func main() {
 		fmt.Println("strasuperdiomerda")
 	}
 
-	db.Debug().Table(samplequery.TableName()).Create(&samplequery)
+	db.Debug().Create(&samplequery)
 	//db.Last(&samplequery)
 
 }
