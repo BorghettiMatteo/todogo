@@ -22,3 +22,10 @@ func (*ToDo) CreateToDo(activity string, activityowner string, expiration time.T
 	todo.Expiration = expiration
 	return todo
 }
+
+// questo override è necessario per specificare il puntamento alla tabella da dovere andare a scriverci sopra
+
+func (t *ToDo) TableName() string {
+	// custom table name, this is default
+	return "public.todo"
+}

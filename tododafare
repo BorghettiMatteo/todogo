@@ -4,6 +4,10 @@
 3) inizio a fare una versione con le query simil sql:
 
 
+scelgo di mettere dentro gli API handler anche la logica di manipolazione del DB.
+Ossia glipasso uno *Gorm.DB che è la conessione che faccio partire quando lancio il server Gin.
+
+
 
 /*
 
@@ -65,3 +69,57 @@ import (
 		//ora postgredb contiene il database effettivo con lo schema caricato
 		//r.Run() // listen and serve on 0.0.0.0:8080
 */
+
+
+connStr := "user=matteo dbname=ToDo password=password host=172.28.120.162 port=5432 sslmode=disable"
+	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+		NowFunc: func() time.Time {
+			ti, _ := time.LoadLocation("Europe/Rome")
+			return time.Now().In(ti)
+		},
+	})
+
+	if err != nil {
+		fmt.Println("si è schienata la configurazione con il db")
+	}
+
+	expiration, err := time.Parse("2006-01-02", "2023-05-27")
+
+	samplequery := todo.ToDo{
+		Activity:      "falcidiare bambini 13",
+		ActivityOwner: "matteo",
+		Expiration:    expiration,
+	}
+
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+	}
+
+	db.Debug().AutoMigrate(&todo.ToDo{})
+
+	superdb, err := db.DB()
+
+	if err != nil {
+		fmt.Println("diomerda sta andado tutto a fuoco")
+	}
+	err = superdb.Ping()
+	if err != nil {
+		fmt.Printf("\"superdiomerda\": %v\n", "superdiomerda")
+		return
+	}
+
+	//data handling
+
+	if err != nil {
+		fmt.Println("strasuperdiomerda")
+	}
+
+	db.Debug().Create(&samplequery)
+	newtodo := todo.ToDo{
+		Id: 6,
+	}
+
+	db.Take(&newtodo)
+	fmt.Printf("new: %v\n", newtodo)
+	//db.Last(&samplequery)
