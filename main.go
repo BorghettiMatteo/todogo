@@ -2,23 +2,29 @@ package main
 
 import (
 	"fmt"
+	"main/apiHandlers"
 	"main/model"
+
+	"github.com/gin-gonic/gin"
 )
 
 // prima faccio partire GIn, poi nel caso
 
-/*
-	func setupRouter() *gin.Engine {
-		router := gin.Default()
-		// grouping per rendere tutto più efficace
-		v1 := router.Group("/api/v1")
-		{
-			// GET per prendere tutti i task di un dato owner
-			v1.GET("/task/:owner", apiHandlers.GetOwnersTasks)
-		}
-		return router
+func setupRouter() *gin.Engine {
+	router := gin.Default()
+	// grouping per rendere tutto più efficace
+	v1 := router.Group("/api/v1")
+	{
+		// GET per prendere tutti i task di un dato owner
+		//non serve passare *gin.Context perchè GetOwnerTask implementa implicitamente l'interfaccia func handler(*gin.Context)
+		v1.GET("/task/:owner", apiHandlers.GetTasks)
+		v1.POST("/task", apiHandlers.PostTasks)
+		v1.PUT("/task/:id", apiHandlers.UpdateTask)
+		v1.DELETE("/task/:id", apiHandlers.DeleteTask)
+
 	}
-*/
+	return router
+}
 
 func main() {
 
