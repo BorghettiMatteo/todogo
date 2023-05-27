@@ -40,5 +40,4 @@ func CreateDatabase() {
 		return
 	}
 
-	return
 }
