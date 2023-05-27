@@ -22,12 +22,11 @@ import (
 
 func main() {
 
-	db, _ := model.CreateDatabase()
-
 	//expiration, err := time.Parse("2006-01-02", "2023-05-27")
 	samplequery := model.ToDo{
-		Id: 4,
+		Id: 5,
 	}
+	model.CreateDatabase()
 
 	//data handling
 	/*
@@ -35,7 +34,7 @@ func main() {
 		samplequery.ActivityOwner = "gesù terrorista"
 		db.Save(&samplequery)
 	*/
-	res := db.Model(&samplequery).Update("activity", "tiratore pazzo")
+	res := (model.Database).Model(&samplequery).Update("activity", "tiratore pazzo")
 	fmt.Printf("res: %v\n", res.RowsAffected)
 
 }
