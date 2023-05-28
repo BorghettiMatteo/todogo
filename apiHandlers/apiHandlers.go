@@ -136,5 +136,18 @@ func UdateWholeTask(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": ret.Error.Error()})
 		return
 	}
+}
 
+func ReturnHealthAPI(c *gin.Context) {
+	superdb, err := model.Database.DB()
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	err = superdb.Ping()
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, gin.H{"status": "db is ok"})
 }

@@ -21,6 +21,7 @@ func setupRouter() *gin.Engine {
 		v1.PUT("/task/:id", apiHandlers.UpdateTask)
 		v1.PUT("/task", apiHandlers.UdateWholeTask)
 		v1.DELETE("/task/:id", apiHandlers.DeleteTask)
+		v1.GET("/health", apiHandlers.ReturnHealthAPI)
 
 	}
 	return router
@@ -37,21 +38,4 @@ func main() {
 		return
 	}
 	currentRouter.Run()
-
-	/*
-		//expiration, err := time.Parse("2006-01-02", "2023-05-27")
-		samplequery := model.ToDo{
-			Id: 5,
-		}
-		model.CreateDatabase()
-
-		//data handling
-
-			res := db.First(&samplequery)
-			samplequery.ActivityOwner = "gesù terrorista"
-			db.Save(&samplequery)
-
-		res := (model.Database).Model(&samplequery).Update("activity", "tiratore pazzo")
-		fmt.Printf("res: %v\n", res.RowsAffected)
-	*/
 }
