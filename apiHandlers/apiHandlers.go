@@ -137,5 +137,5 @@ func UdateWholeTask(c *gin.Context) {
 	}
 	// che sia passedToDo o tempToDo è indifferente da passare a Model()
 	model.Database.Model(&passedTodo).Updates(passedTodo)
-	return
+
 }
