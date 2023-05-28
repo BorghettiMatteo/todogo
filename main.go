@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"main/apiHandlers"
 	"main/model"
 
@@ -28,19 +27,27 @@ func setupRouter() *gin.Engine {
 
 func main() {
 
-	//expiration, err := time.Parse("2006-01-02", "2023-05-27")
-	samplequery := model.ToDo{
-		Id: 5,
-	}
+	// inizializzo il db, devo farmi passare anche l'errore eventualmente da stampare su return
+
 	model.CreateDatabase()
 
-	//data handling
+	//creazione router
+	currentRouter := setupRouter()
+	currentRouter.Run()
 	/*
-		res := db.First(&samplequery)
-		samplequery.ActivityOwner = "gesù terrorista"
-		db.Save(&samplequery)
-	*/
-	res := (model.Database).Model(&samplequery).Update("activity", "tiratore pazzo")
-	fmt.Printf("res: %v\n", res.RowsAffected)
+		//expiration, err := time.Parse("2006-01-02", "2023-05-27")
+		samplequery := model.ToDo{
+			Id: 5,
+		}
+		model.CreateDatabase()
 
+		//data handling
+
+			res := db.First(&samplequery)
+			samplequery.ActivityOwner = "gesù terrorista"
+			db.Save(&samplequery)
+
+		res := (model.Database).Model(&samplequery).Update("activity", "tiratore pazzo")
+		fmt.Printf("res: %v\n", res.RowsAffected)
+	*/
 }
