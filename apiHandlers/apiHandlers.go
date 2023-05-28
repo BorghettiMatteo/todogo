@@ -113,3 +113,29 @@ func DeleteTask(c *gin.Context) {
 	}
 
 }
+
+func UdateWholeTask(c *gin.Context) {
+	var tmpTodo model.ToDo
+	var passedTodo model.ToDo
+	res := c.BindJSON(&passedTodo)
+
+	if res != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "bad request"})
+		return
+	}
+	//controllo che l' entità esista:
+	err := model.Database.Where("id = ?", passedTodo.Id).First(&tmpTodo)
+	if err.Error != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "no element with this id in db"})
+		return
+	}
+	// controllo che i dati passati siano consistenti
+	//controllo data expiration > data attuale
+	if passedTodo.Expiration.Before(time.Now()) {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "expiration date cannot be less than creation date (as of today's date)"})
+		return
+	}
+	// che sia passedToDo o tempToDo è indifferente da passare a Model()
+	model.Database.Model(&passedTodo).Updates(passedTodo)
+	return
+}
