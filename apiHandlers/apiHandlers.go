@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"main/model"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,7 +14,7 @@ import (
 func GetTasks(c *gin.Context) {
 	//devo prendere dal db tutte le task e poi schiaffarle dentro un JSON e pusharlo verso il client
 	userName := c.Param("owner")
-
+	//creazione di un array di ToDo poichè nulla vieta che un owner abbia uno o più todo
 	tmpUser := []model.ToDo{}
 	// res ha la risposta che è del tipo *DB, quindi per l'errore devo accedere al campo res.Error
 	res := model.Database.Where("activity_owner", userName).Find(&tmpUser)
@@ -35,7 +36,38 @@ func GetTasks(c *gin.Context) {
 }
 
 func PostTasks(c *gin.Context) {
-	fmt.Println("a")
+	//devo usare shouldBindJson
+	var tmpTodo model.ToDo
+
+	res := c.BindJSON(&tmpTodo)
+	// cosa abbiamo imparato, che se da postman faccio una quert senza rispettare lo schema di JSOn, si schiena tutto
+	if res != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "bad request"})
+		return
+	}
+	// ora faccio tutti i controlli del caso su i dati passato
+	//la data di fine deve essere > della data
+	if tmpTodo.Expiration.Before(time.Now()) {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "expiration date cannot be less than creation date (as of today's date)"})
+		return
+	}
+	// check se l'utente ha pushato un id
+	if tmpTodo.Id != 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "please do not insert the ID, postgres will handle it"})
+		return
+	}
+	// se tutti i controlli sono andati bene, allora pusho la struttura nel DB
+	err := model.Database.Create(&tmpTodo)
+
+	if err.Error != nil {
+		// inizio a metterli come placeholder, poi sistemerò
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "not able to push data into DB"})
+		return
+	}
+	if err.RowsAffected == 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "bad request"})
+	}
+
 }
 
 func UpdateTask(c *gin.Context) {
