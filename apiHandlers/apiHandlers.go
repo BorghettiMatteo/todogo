@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"main/model"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -73,27 +72,8 @@ func PostTasks(c *gin.Context) {
 
 func UpdateTask(c *gin.Context) {
 	var tmpTodo model.ToDo
-	type Boolway struct {
-		Id   string `uri:"id" binding:"required"`
-		Flag string `uri:"flag" binding:"required"`
-	}
-	var boolway Boolway
-	err := c.ShouldBindUri(&boolway)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "whatever you have done, you have done bad"})
-		return
-	}
-	// type check
-	id, converr := strconv.Atoi(boolway.Id)
-	if converr != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "not able to use passed ID as primary Key"})
-		return
-	}
-	flag, converr := strconv.ParseBool(boolway.Flag)
-	if converr != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "please pass a boolean value"})
-		return
-	}
+	id := c.Param("id")
+
 	// check se ID è presente nel db
 	exist := model.Database.Where("id = ?", id).First(&tmpTodo)
 	if exist.Error != nil {
@@ -101,17 +81,35 @@ func UpdateTask(c *gin.Context) {
 		return
 	}
 	// update db record
-	ret := model.Database.Model(&tmpTodo).Where("id = ?", id).Update("is_done", flag)
-	if ret.RowsAffected == 0 {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "no action performed"})
-		return
+	if tmpTodo.IsDone {
+		ret := model.Database.Model(&tmpTodo).Update("is_done", false)
+		if ret.RowsAffected == 0 {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "no action performed"})
+			return
+		}
+	} else {
+		ret := model.Database.Model(&tmpTodo).Update("is_done", true)
+		if ret.RowsAffected == 0 {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "no action performed"})
+			return
+		}
 	}
 }
 
 func DeleteTask(c *gin.Context) {
-	fmt.Println("a")
-}
+	var tmpTodo model.ToDo
+	id := c.Param("id")
+	//parse id to int
+	err := model.Database.Where("Id = ?", id).First(&tmpTodo)
+	// se errore != null vuol dire che non è riuscita a fare la delete oppure l'id non esiste
+	if err.Error != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "no element with this id in db"})
+		return
+	}
+	ret := model.Database.Delete(&tmpTodo)
+	if ret.Error != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "diostrabestia"})
+		return
+	}
 
-func UdateWholeTask(c *gin.Context) {
-	fmt.Println("a")
 }

@@ -18,8 +18,8 @@ func setupRouter() *gin.Engine {
 		//non serve passare *gin.Context perchè GetOwnerTask implementa implicitamente l'interfaccia func handler(*gin.Context)
 		v1.GET("/task/:owner", apiHandlers.GetTasks)
 		v1.POST("/task", apiHandlers.PostTasks)
-		v1.PUT("/task/:id/:flag", apiHandlers.UpdateTask)
-		v1.PUT("/task", apiHandlers.UpdateTask)
+		v1.PUT("/task/:id", apiHandlers.UpdateTask)
+		//v1.PUT("/task", apiHandlers.UdateWholeTask)
 		v1.DELETE("/task/:id", apiHandlers.DeleteTask)
 
 	}
