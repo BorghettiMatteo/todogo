@@ -1,4 +1,4 @@
-
+	
 1) https://gocondor.github.io/docs/gin-context/
 2) dare un setuprouter() per setuppare il router con la definizione di tutti gli endpoint
 3) inizio a fare una versione con le query simil sql:
