@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// non mi devo preoccupare di sanificare l'input che viene dall'utente perchè gorm già escapa i caratteri usati in injection: https://gorm.io/docs/security.html
 // questo è un handler perchè ha la signature del tipo: func (c * gin.Context){}
 func GetTasks(c *gin.Context) {
 	//devo prendere dal db tutte le task e poi schiaffarle dentro un JSON e pusharlo verso il client
@@ -25,8 +26,10 @@ func GetTasks(c *gin.Context) {
 
 	if res.Error != nil {
 		fmt.Println("errore db")
+		c.AbortWithError(http.StatusInternalServerError, res.Error)
+		return
 	}
-	// marshalling dei dati di ritorno dal db
+	// loading dei dati dentro il body della risposta come JSON indentato.
 	c.IndentedJSON(http.StatusOK, tmpUser)
 
 }
