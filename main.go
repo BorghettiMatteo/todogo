@@ -30,11 +30,14 @@ func main() {
 
 	// inizializzo il db, devo farmi passare anche l'errore eventualmente da stampare su return
 
-	model.CreateDatabase()
-
 	//creazione router
 	currentRouter := setupRouter()
+	err := model.CreateDatabase()
+	if err != nil {
+		return
+	}
 	currentRouter.Run()
+
 	/*
 		//expiration, err := time.Parse("2006-01-02", "2023-05-27")
 		samplequery := model.ToDo{

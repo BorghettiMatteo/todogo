@@ -11,7 +11,7 @@ import (
 
 var Database *gorm.DB
 
-func CreateDatabase() {
+func CreateDatabase() error {
 	connStr := "user=matteo dbname=ToDo password=password host=172.28.120.162 port=5432 sslmode=disable"
 	var err error
 	// qui non riuscivo a passare il db poichè facevo lo shadowing della varibile Database facendo l'assegnazione implicita di quest'ultima mi scassava tutto
@@ -27,17 +27,19 @@ func CreateDatabase() {
 	fmt.Printf("Database: %v\n", Database)
 
 	if err != nil {
-		fmt.Println("si è schienata la configurazione con il db")
+		fmt.Println("error starting DB")
+		return err
 	}
 	superdb, err := Database.DB()
 
 	if err != nil {
-		fmt.Println("diomerda sta andado tutto a fuoco")
+		fmt.Println("no DB connection")
+		return err
 	}
 	err = superdb.Ping()
 	if err != nil {
-		fmt.Printf("\"superdiomerda\": %v\n", "superdiomerda")
-		return
+		fmt.Printf("no ping to DB")
+		return err
 	}
-
+	return nil
 }
