@@ -77,18 +77,10 @@ func UpdateTask(c *gin.Context) {
 		return
 	}
 	// update db record
-	if inputToDo.IsDone {
-		ret := model.Database.Model(&inputToDo).Update("is_done", false)
-		if ret.Error != nil {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": exist.Error.Error()})
-			return
-		}
-	} else {
-		ret := model.Database.Model(&inputToDo).Update("is_done", true)
-		if ret.Error != nil {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": exist.Error.Error()})
-			return
-		}
+	ret := model.Database.Model(&inputToDo).Update("is_done", !inputToDo.IsDone)
+	if ret.Error != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": exist.Error.Error()})
+		return
 	}
 }
 
