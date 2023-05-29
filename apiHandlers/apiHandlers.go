@@ -31,9 +31,9 @@ func GetTasks(c *gin.Context) {
 
 func PostTasks(c *gin.Context) {
 	//devo usare shouldBindJson
-	var tmpTodo model.ToDo
+	var inputToDo model.ToDo
 
-	res := c.BindJSON(&tmpTodo)
+	res := c.BindJSON(&inputToDo)
 	// cosa abbiamo imparato, che se da postman faccio una quert senza rispettare lo schema di JSOn, si schiena tutto
 	if res != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": res.Error()})
@@ -41,17 +41,18 @@ func PostTasks(c *gin.Context) {
 	}
 	// ora faccio tutti i controlli del caso su i dati passato
 	//la data di fine deve essere > della data
-	if tmpTodo.Expiration.Before(time.Now()) {
+	if inputToDo.Expiration.Before(time.Now()) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "expiration date cannot be less than creation date (as of today's date)"})
 		return
 	}
-	// check se l'utente ha pushato un id
-	if tmpTodo.Id != 0 {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "please do not insert the ID, postgres will handle it"})
-		return
+	// check se l'utente ha pushato un id che giùesiste me ne frego e passo olte
+
+	if inputToDo.Id != 0 {
+		inputToDo.Id = 0
 	}
+
 	// se tutti i controlli sono andati bene, allora pusho la struttura nel DB
-	err := model.Database.Create(&tmpTodo)
+	err := model.Database.Create(&inputToDo)
 
 	if err.Error != nil {
 		// inizio a metterli come placeholder, poi sistemerò
@@ -66,24 +67,24 @@ func PostTasks(c *gin.Context) {
 }
 
 func UpdateTask(c *gin.Context) {
-	var tmpTodo model.ToDo
+	var inputToDo model.ToDo
 	id := c.Param("id")
 
 	// check se ID è presente nel db
-	exist := model.Database.Where("id = ?", id).First(&tmpTodo)
+	exist := model.Database.Where("id = ?", id).First(&inputToDo)
 	if exist.Error != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": exist.Error.Error()})
 		return
 	}
 	// update db record
-	if tmpTodo.IsDone {
-		ret := model.Database.Model(&tmpTodo).Update("is_done", false)
+	if inputToDo.IsDone {
+		ret := model.Database.Model(&inputToDo).Update("is_done", false)
 		if ret.Error != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": exist.Error.Error()})
 			return
 		}
 	} else {
-		ret := model.Database.Model(&tmpTodo).Update("is_done", true)
+		ret := model.Database.Model(&inputToDo).Update("is_done", true)
 		if ret.Error != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": exist.Error.Error()})
 			return
@@ -92,16 +93,16 @@ func UpdateTask(c *gin.Context) {
 }
 
 func DeleteTask(c *gin.Context) {
-	var tmpTodo model.ToDo
+	var inputToDo model.ToDo
 	id := c.Param("id")
 	//parse id to int
-	err := model.Database.Where("Id = ?", id).First(&tmpTodo)
+	err := model.Database.Where("Id = ?", id).First(&inputToDo)
 	// se errore != null vuol dire che non è riuscita a fare la delete oppure l'id non esiste
 	if err.Error != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error.Error()})
 		return
 	}
-	ret := model.Database.Delete(&tmpTodo)
+	ret := model.Database.Delete(&inputToDo)
 	if ret.Error != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": ret.Error.Error()})
 		return
@@ -110,7 +111,7 @@ func DeleteTask(c *gin.Context) {
 }
 
 func UdateWholeTask(c *gin.Context) {
-	var tmpTodo model.ToDo
+	var inputToDo model.ToDo
 	var passedTodo model.ToDo
 	res := c.BindJSON(&passedTodo)
 
@@ -119,7 +120,7 @@ func UdateWholeTask(c *gin.Context) {
 		return
 	}
 	//controllo che l' entità esista:
-	err := model.Database.Where("id = ?", passedTodo.Id).First(&tmpTodo)
+	err := model.Database.Where("id = ?", passedTodo.Id).First(&inputToDo)
 	if err.Error != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error.Error()})
 		return
@@ -131,7 +132,7 @@ func UdateWholeTask(c *gin.Context) {
 		return
 	}
 	// che sia passedToDo o tempToDo è indifferente da passare a Model()
-	ret := model.Database.Model(&tmpTodo).Updates(&passedTodo)
+	ret := model.Database.Model(&inputToDo).Updates(&passedTodo)
 	if ret.Error != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": ret.Error.Error()})
 		return
