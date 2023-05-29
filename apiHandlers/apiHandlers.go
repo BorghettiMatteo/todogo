@@ -111,7 +111,7 @@ func DeleteTask(c *gin.Context) {
 }
 
 func UdateWholeTask(c *gin.Context) {
-	var inputToDo model.ToDo
+	var sampleToDo model.ToDo
 	var passedTodo model.ToDo
 	res := c.BindJSON(&passedTodo)
 
@@ -120,7 +120,7 @@ func UdateWholeTask(c *gin.Context) {
 		return
 	}
 	//controllo che l' entità esista:
-	err := model.Database.Where("id = ?", passedTodo.Id).First(&inputToDo)
+	err := model.Database.Where("id = ?", passedTodo.Id).First(&sampleToDo)
 	if err.Error != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error.Error()})
 		return
@@ -132,7 +132,7 @@ func UdateWholeTask(c *gin.Context) {
 		return
 	}
 	// che sia passedToDo o tempToDo è indifferente da passare a Model()
-	ret := model.Database.Model(&inputToDo).Updates(&passedTodo)
+	ret := model.Database.Model(&sampleToDo).Updates(&passedTodo)
 	if ret.Error != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": ret.Error.Error()})
 		return
