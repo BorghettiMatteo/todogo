@@ -19,7 +19,7 @@ func setupRouter() *gin.Engine {
 		v1.GET("/task/:owner", apiHandlers.GetTasks)
 		v1.POST("/task", apiHandlers.PostTasks)
 		v1.PUT("/task/:id", apiHandlers.UpdateTask)
-		v1.PUT("/task", apiHandlers.UdateWholeTask)
+		v1.PUT("/task", apiHandlers.UpdateWholeTask)
 		v1.DELETE("/task/:id", apiHandlers.DeleteTask)
 		v1.GET("/health", apiHandlers.ReturnHealthAPI)
 
