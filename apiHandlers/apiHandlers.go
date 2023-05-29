@@ -3,10 +3,16 @@ package apiHandlers
 import (
 	"main/model"
 	"net/http"
+	"regexp"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
+
+func checkIDInput(id string) bool {
+	digitReg, _ := regexp.Compile(`^[\d]+$`)
+	return digitReg.MatchString(id)
+}
 
 // non mi devo preoccupare di sanificare l'input che viene dall'utente perchè gorm già escapa i caratteri usati in injection: https://gorm.io/docs/security.html
 // questo è un handler perchè ha la signature del tipo: func (c * gin.Context){}
@@ -69,7 +75,10 @@ func PostTasks(c *gin.Context) {
 func UpdateTask(c *gin.Context) {
 	var inputToDo model.ToDo
 	id := c.Param("id")
-
+	if !checkIDInput(id) {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "cannot pass non digit ID"})
+		return
+	}
 	// check se ID è presente nel db
 	exist := model.Database.Where("id = ?", id).First(&inputToDo)
 	if exist.Error != nil {
@@ -87,7 +96,11 @@ func UpdateTask(c *gin.Context) {
 func DeleteTask(c *gin.Context) {
 	var inputToDo model.ToDo
 	id := c.Param("id")
-	//parse id to int
+
+	if !checkIDInput(id) {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "cannot pass non digit ID"})
+		return
+	}
 	err := model.Database.Where("Id = ?", id).First(&inputToDo)
 	// se errore != null vuol dire che non è riuscita a fare la delete oppure l'id non esiste
 	if err.Error != nil {
@@ -102,7 +115,7 @@ func DeleteTask(c *gin.Context) {
 
 }
 
-func UdateWholeTask(c *gin.Context) {
+func UpdateWholeTask(c *gin.Context) {
 	var sampleToDo model.ToDo
 	var passedTodo model.ToDo
 	res := c.BindJSON(&passedTodo)
