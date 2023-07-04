@@ -16,11 +16,13 @@ func setupRouter() *gin.Engine {
 	{
 		// GET per prendere tutti i task di un dato owner
 		//non serve passare *gin.Context perchè GetOwnerTask implementa implicitamente l'interfaccia func handler(*gin.Context)
-		v1.GET("/task/:owner", apiHandlers.GetTasks)
+		//la get sarà del tipo /api/v1/task?user=
+		v1.GET("/task/", apiHandlers.GetTasks)
 		v1.POST("/task", apiHandlers.PostTasks)
 		v1.PUT("/task/:id", apiHandlers.UpdateTask)
 		v1.PUT("/task", apiHandlers.UpdateWholeTask)
-		v1.DELETE("/task/:id", apiHandlers.DeleteTask)
+		// /api/v1/task?id=
+		v1.DELETE("/task/", apiHandlers.DeleteTask)
 		v1.GET("/health", apiHandlers.ReturnHealthAPI)
 
 	}
@@ -34,6 +36,7 @@ func main() {
 	//creazione router
 	currentRouter := setupRouter()
 	err := model.CreateDatabase()
+	model.Database.AutoMigrate(&model.ToDo{})
 	if err != nil {
 		return
 	}

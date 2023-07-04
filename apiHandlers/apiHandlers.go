@@ -18,7 +18,11 @@ func checkIDInput(id string) bool {
 // questo è un handler perchè ha la signature del tipo: func (c * gin.Context){}
 func GetTasks(c *gin.Context) {
 	//devo prendere dal db tutte le task e poi schiaffarle dentro un JSON e pusharlo verso il client
-	userName := c.Param("owner")
+	userName := c.Query("user")
+	if userName == "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "valore nullo"})
+		return
+	}
 	//creazione di un array di ToDo poichè nulla vieta che un owner abbia uno o più todo
 	tmpUser := []model.ToDo{}
 	// res ha la risposta che è del tipo *DB, quindi per l'errore devo accedere al campo res.Error
@@ -95,7 +99,7 @@ func UpdateTask(c *gin.Context) {
 
 func DeleteTask(c *gin.Context) {
 	var inputToDo model.ToDo
-	id := c.Param("id")
+	id := c.Query("id")
 
 	if !checkIDInput(id) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "cannot pass non digit ID"})
