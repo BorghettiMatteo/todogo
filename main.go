@@ -23,7 +23,7 @@ func setupRouter() *gin.Engine {
 		v1.PUT("/task", apiHandlers.UpdateWholeTask)
 		// /api/v1/task?id=
 		v1.DELETE("/task/", apiHandlers.DeleteTask)
-		v1.GET("/health", apiHandlers.ReturnHealthAPI)
+		v1.GET("/health", apiHandlers.ReturnHealthAPI, apiHandlers.AnotherHealthFunc)
 
 	}
 	return router

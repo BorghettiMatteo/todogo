@@ -161,3 +161,7 @@ func ReturnHealthAPI(c *gin.Context) {
 	}
 	c.IndentedJSON(http.StatusOK, gin.H{"status": "db is ok"})
 }
+
+func AnotherHealthFunc(c *gin.Context) {
+	c.IndentedJSON(http.StatusAccepted, gin.H{"message": "eccocil"})
+}
