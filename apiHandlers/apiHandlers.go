@@ -1,12 +1,14 @@
 package apiHandlers
 
 import (
+	"main/auth"
 	"main/model"
 	"net/http"
 	"regexp"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func checkIDInput(id string) bool {
@@ -164,4 +166,50 @@ func ReturnHealthAPI(c *gin.Context) {
 
 func AnotherHealthFunc(c *gin.Context) {
 	c.IndentedJSON(http.StatusAccepted, gin.H{"message": "eccocil"})
+}
+
+func Login(c *gin.Context) {
+	c.IndentedJSON(http.StatusAccepted, gin.H{"message": "questo è il login dio cane"})
+}
+
+func RegisterUser(c *gin.Context) {
+	var newUser model.User
+
+	res := c.BindJSON(&newUser)
+
+	hashed, ok := bcrypt.GenerateFromPassword([]byte(newUser.HashedPassword), 15)
+	if ok != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": ok.Error()})
+	}
+	newUser.HashedPassword = string(hashed)
+
+	if res != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": res.Error()})
+		return
+	}
+	err := model.Database.Create(&newUser)
+	if err.Error != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error})
+		return
+	}
+
+	// qui devo gestire la fase di creazione del token
+	signedString, e := auth.GenerateToken(newUser)
+	if e == nil {
+		c.IndentedJSON(http.StatusOK, gin.H{"token": signedString})
+	}
+
+}
+
+func SampleAuth(c *gin.Context) {
+	token := c.Query("token")
+	if token == "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "valore nullo"})
+		return
+	}
+	if auth.VerifyToken(token) {
+		c.IndentedJSON(http.StatusOK, gin.H{"message": "authok"})
+	} else {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "authko"})
+	}
 }

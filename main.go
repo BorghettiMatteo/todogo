@@ -24,7 +24,13 @@ func setupRouter() *gin.Engine {
 		// /api/v1/task?id=
 		v1.DELETE("/task/", apiHandlers.DeleteTask)
 		v1.GET("/health", apiHandlers.ReturnHealthAPI, apiHandlers.AnotherHealthFunc)
+		v1.GET("/sampleAuth", apiHandlers.SampleAuth)
 
+	}
+	public := v1.Group("/public")
+	{
+		public.GET("/login", apiHandlers.Login)
+		public.POST("/register", apiHandlers.RegisterUser)
 	}
 	return router
 }
@@ -37,6 +43,7 @@ func main() {
 	currentRouter := setupRouter()
 	err := model.CreateDatabase()
 	model.Database.AutoMigrate(&model.ToDo{})
+	model.Database.AutoMigrate(&model.User{})
 	if err != nil {
 		return
 	}
