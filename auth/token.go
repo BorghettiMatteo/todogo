@@ -1,43 +1,33 @@
 package auth
 
 import (
-	"fmt"
 	"main/model"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type TokenClaim struct {
-	jwt.RegisteredClaims
-	user       string
-	expiration string
-}
-
 var SecretKey = []byte("password")
 
 //ritorna la stringa che rappresenta l'utenza
 
 func GenerateToken(user model.User) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user":       user.Username,
-		"expiration": time.Now().Local().Add(time.Minute * time.Duration(1)).Unix(),
-	})
+	claims := &jwt.RegisteredClaims{
+		ExpiresAt: jwt.NewNumericDate(time.Now().Local().Add(time.Minute * 5)),
+		Issuer:    "todo",
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedKey, err := token.SignedString(SecretKey)
 	return signedKey, err
 }
-
 func VerifyToken(stringifyToken string) bool {
-	// io uso hmac come metodo di sign
-	token, err := jwt.Parse(stringifyToken, func(*jwt.Token) (interface{}, error) {
+	// io uso hmac come metodo dir tokenClaim TokenClaim
+	claims := jwt.MapClaims{}
+	token, err := jwt.ParseWithClaims(stringifyToken, claims, func(token *jwt.Token) (interface{}, error) {
 		return SecretKey, nil
 	})
-
 	if err != nil {
 		return false
 	}
-	if token.Valid {
-		fmt.Printf("\"valid\": %v\n", "valid")
-	}
-	return true
+	return token.Valid
 }
