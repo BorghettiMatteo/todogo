@@ -12,22 +12,23 @@ import (
 func setupRouter() *gin.Engine {
 	router := gin.Default()
 	// grouping per rendere tutto più efficace
-	v1 := router.Group("/api/v1")
+	headerGroup := router.Group("/api/v1")
+	protected := headerGroup.Group("/protected")
 	{
 		// GET per prendere tutti i task di un dato owner
 		//non serve passare *gin.Context perchè GetOwnerTask implementa implicitamente l'interfaccia func handler(*gin.Context)
 		//la get sarà del tipo /api/v1/task?user=
-		v1.GET("/task/", apiHandlers.GetTasks)
-		v1.POST("/task", apiHandlers.PostTasks)
-		v1.PUT("/task/:id", apiHandlers.UpdateTask)
-		v1.PUT("/task", apiHandlers.UpdateWholeTask)
+		protected.GET("/task/", apiHandlers.GetTasks)
+		protected.POST("/task", apiHandlers.PostTasks)
+		protected.PUT("/task/:id", apiHandlers.UpdateTask)
+		protected.PUT("/task", apiHandlers.UpdateWholeTask)
 		// /api/v1/task?id=
-		v1.DELETE("/task/", apiHandlers.DeleteTask)
-		v1.GET("/health", apiHandlers.ReturnHealthAPI, apiHandlers.AnotherHealthFunc)
-		v1.GET("/sampleAuth", apiHandlers.SampleAuth)
+		protected.DELETE("/task/", apiHandlers.DeleteTask)
+		protected.GET("/health", apiHandlers.ReturnHealthAPI, apiHandlers.AnotherHealthFunc)
+		protected.GET("/sampleAuth", apiHandlers.SampleAuth)
 
 	}
-	public := v1.Group("/public")
+	public := headerGroup.Group("/public")
 	{
 		public.POST("/login", apiHandlers.Login)
 		public.POST("/register", apiHandlers.RegisterUser)
