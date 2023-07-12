@@ -1,6 +1,8 @@
 package apiHandlers
 
 import (
+	"crypto/sha512"
+	"fmt"
 	"main/auth"
 	"main/model"
 	"net/http"
@@ -8,7 +10,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func checkIDInput(id string) bool {
@@ -184,21 +185,21 @@ func Login(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": dbret.Error})
 		return
 	} else {
-		hashed, ok := bcrypt.GenerateFromPassword([]byte(inputUser.HashedPassword), 15)
-		if ok == nil {
-			if dbUser.HashedPassword == string(hashed) {
-				signedString, e := auth.GenerateToken(dbUser)
-				if e == nil {
-					c.Request.Header.Add("Bearer", signedString)
-					c.IndentedJSON(http.StatusOK, gin.H{"token": signedString})
-					return
-				}
-			} else {
-				c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"message": "wrong password, retry!"})
+		hasher := sha512.New()
+		hasher.Write([]byte(inputUser.HashedPassword))
+		a := hasher.Sum(nil)
+		b := string(a)
+		inputUser.HashedPassword = fmt.Sprintf("%x", b)
+		if dbUser.HashedPassword == inputUser.HashedPassword {
+			signedString, e := auth.GenerateToken(dbUser)
+			if e == nil {
+				c.Request.Header.Add("Bearer", signedString)
+				c.IndentedJSON(http.StatusOK, gin.H{"token": signedString})
 				return
 			}
 		} else {
-			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"message": ok.Error()})
+			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"message": "wrong password, retry!"})
+			return
 		}
 	}
 }
@@ -207,13 +208,11 @@ func RegisterUser(c *gin.Context) {
 	var newUser model.User
 
 	res := c.BindJSON(&newUser)
-
-	hashed, ok := bcrypt.GenerateFromPassword([]byte(newUser.HashedPassword), 15)
-	if ok != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": ok.Error()})
-	}
-	newUser.HashedPassword = string(hashed)
-
+	hasher := sha512.New()
+	hasher.Write([]byte(newUser.HashedPassword))
+	a := hasher.Sum(nil)
+	b := string(a)
+	newUser.HashedPassword = fmt.Sprintf("%x", b)
 	if res != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": res.Error()})
 		return
