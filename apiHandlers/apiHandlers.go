@@ -169,7 +169,38 @@ func AnotherHealthFunc(c *gin.Context) {
 }
 
 func Login(c *gin.Context) {
-	c.IndentedJSON(http.StatusAccepted, gin.H{"message": "questo è il login dio cane"})
+	// check su db se c'è lo user
+	var inputUser model.User
+	var dbUser model.User
+
+	res := c.BindJSON(&inputUser)
+	if res != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": res.Error()})
+		return
+	}
+	//
+	dbret := model.Database.Where("username", inputUser.Username).Find(&dbUser)
+	if dbret.Error != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": dbret.Error})
+		return
+	} else {
+		hashed, ok := bcrypt.GenerateFromPassword([]byte(inputUser.HashedPassword), 15)
+		if ok == nil {
+			if dbUser.HashedPassword == string(hashed) {
+				signedString, e := auth.GenerateToken(dbUser)
+				if e == nil {
+					c.Request.Header.Add("Bearer", signedString)
+					c.IndentedJSON(http.StatusOK, gin.H{"token": signedString})
+					return
+				}
+			} else {
+				c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"message": "wrong password, retry!"})
+				return
+			}
+		} else {
+			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"message": ok.Error()})
+		}
+	}
 }
 
 func RegisterUser(c *gin.Context) {

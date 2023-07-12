@@ -29,7 +29,7 @@ func setupRouter() *gin.Engine {
 	}
 	public := v1.Group("/public")
 	{
-		public.GET("/login", apiHandlers.Login)
+		public.POST("/login", apiHandlers.Login)
 		public.POST("/register", apiHandlers.RegisterUser)
 	}
 	return router
