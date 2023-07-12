@@ -2,6 +2,7 @@ package main
 
 import (
 	"main/apiHandlers"
+	"main/auth"
 	"main/model"
 
 	"github.com/gin-gonic/gin"
@@ -15,6 +16,7 @@ func setupRouter() *gin.Engine {
 	headerGroup := router.Group("/api/v1")
 	protected := headerGroup.Group("/protected")
 	{
+		protected.Use(auth.AuthMiddleware())
 		// GET per prendere tutti i task di un dato owner
 		//non serve passare *gin.Context perchè GetOwnerTask implementa implicitamente l'interfaccia func handler(*gin.Context)
 		//la get sarà del tipo /api/v1/task?user=
