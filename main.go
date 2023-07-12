@@ -16,6 +16,7 @@ func setupRouter() *gin.Engine {
 	headerGroup := router.Group("/api/v1")
 	protected := headerGroup.Group("/protected")
 	{
+		// definisco qui il middleware per tutte le rotte protette
 		protected.Use(auth.AuthMiddleware())
 		// GET per prendere tutti i task di un dato owner
 		//non serve passare *gin.Context perchè GetOwnerTask implementa implicitamente l'interfaccia func handler(*gin.Context)
@@ -28,12 +29,14 @@ func setupRouter() *gin.Engine {
 		protected.DELETE("/task/", apiHandlers.DeleteTask)
 		protected.GET("/health", apiHandlers.ReturnHealthAPI, apiHandlers.AnotherHealthFunc)
 		protected.GET("/sampleAuth", apiHandlers.SampleAuth)
+		protected.PUT("/logoff", apiHandlers.LogOff)
 
 	}
 	public := headerGroup.Group("/public")
 	{
 		public.POST("/login", apiHandlers.Login)
 		public.POST("/register", apiHandlers.RegisterUser)
+
 	}
 	return router
 }

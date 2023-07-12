@@ -243,3 +243,13 @@ func SampleAuth(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "authko"})
 	}
 }
+
+func LogOff(c *gin.Context) {
+	token := c.Query("token")
+	if token == "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "valore nullo"})
+		return
+	}
+	auth.SecretKey = []byte("orcolalamadonna")
+	c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "ciaociao"})
+}

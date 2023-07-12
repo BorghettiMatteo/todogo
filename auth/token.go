@@ -13,7 +13,7 @@ var SecretKey = []byte("password")
 
 func GenerateToken(user model.User) (string, error) {
 	claims := &jwt.RegisteredClaims{
-		ExpiresAt: jwt.NewNumericDate(time.Now().Local().Add(time.Minute * 5)),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Local().Add(time.Minute * 1)),
 		Issuer:    "todo",
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
