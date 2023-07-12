@@ -208,6 +208,14 @@ func RegisterUser(c *gin.Context) {
 	var newUser model.User
 
 	res := c.BindJSON(&newUser)
+	if res != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": res.Error()})
+		return
+	}
+	if model.Database.First(&newUser).RowsAffected > 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "user already present, please register with a new username"})
+		return
+	}
 	hasher := sha512.New()
 	hasher.Write([]byte(newUser.HashedPassword))
 	a := hasher.Sum(nil)
